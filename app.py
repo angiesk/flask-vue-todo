@@ -14,9 +14,10 @@ CORS(app)
 @app.route('/')
 def hello():
   return('<h1>Hello world nothing to do here pls visit postman for testing apis</h1> ')
+
 @app.route('/api/tasks', methods=['GET'])
 def get_all_tasks():
-  tasks = mongo.db.todo;
+  tasks = mongo.db.todo
   result = []
   for field in tasks.find():
     result.append({'_id': str(field['_id']), 'title': field['title']})
@@ -24,16 +25,16 @@ def get_all_tasks():
 
 @app.route('/api/task', methods=['POST'])
 def add_task():
-  tasks = mongo.db.todo;
+  tasks = mongo.db.todo
   title = request.get_json()['title']
   task_id = tasks.insert({'title': title})
   new_task = tasks.find_one({'_id': task_id})
   result = {'title': new_task['title']}
   return jsonify({'result': result, 'status': 'task added successfully'})
-  
+
 @app.route('/api/task/<id>', methods=['PUT'])
-def update_task():
-  tasks = mongo.db.todo;
+def update_task(id):
+  tasks = mongo.db.todo
   title = request.get_json()['title']
   tasks.find_one_and_update({'_id': ObjectId(id)}, {"$set": {"title": title}}, upsert=False)
   new_task = tasks.find_one({'_id':ObjectId(id)})
@@ -42,16 +43,16 @@ def update_task():
 
 
   @app.route('/api/task/<id>', methods=['DELETE'])
-  def delete_task():
-    tasks = mongo.db.todo;
+  def delete_task(id):
+    tasks = mongo.db.todo
 
-    response = tasks.delete_one({'_id': ObjectId(id)})
-    
+    response = tasks.delete({'_id': ObjectId(id)})
+
     if response.deleted_count == 1:
-      result ={'status': 'task deleted successfully'}
+        result = {'message': 'record deleted'}
     else:
-      result = {'status': 'no task deleted'}
-    return jsonify(result)
+        result = {'message': 'no record found'}
+    return jsonify({'result': result})
 
 
 
